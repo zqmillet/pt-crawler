@@ -15,10 +15,11 @@ from lxml import etree
 
 def get_headers(header_file_path: str) -> Dict[str, str]:
     with open(header_file_path, 'r', encoding='utf8') as file:
-        return dict(
-            tuple(line.strip().split(': ', 1))
-            for line in file.readlines()[1:]
-        )
+        headers = {}
+        for line in file.readlines()[1:]:
+            key, value = line.strip().split(': ', 1)
+            headers[key] = value
+        return headers
 
 def get_parameters_from_href(href: str) -> Dict[str, List[str]]:
     return parse_qs(urlparse(href).query)
@@ -27,6 +28,18 @@ def get_id_from_href(href: str) -> Optional[str]:
     return get_parameters_from_href(href).get('id', [None])[0]
 
 def convert_to_bytes(size: str) -> Optional[int]:
+    result = match(r"([0-9\. ]+)([a-zA-Z]+)", size.strip())
+    if not result:
+        return None
+
+    groups = result.groups()
+    if not len(groups) == 2:
+        return None
+
+    number, unit = groups
+    return calculate_bytes(number, unit)
+
+def calculate_bytes(number: str, unit: str) -> int:
     units: Dict[str, int] = {
         'kb': 1024,
         'mb': 1024 ** 2,
@@ -35,13 +48,9 @@ def convert_to_bytes(size: str) -> Optional[int]:
         'pb': 1024 ** 5
     }
 
-    groups = match(r"([0-9\. ]+)([a-zA-Z]+)", size.strip()).groups()
-    if not len(groups) == 2:
-        return None
-    number, unit = groups
     return int(float(number) * units.get(unit.lower(), 1))
 
-def find_element(html: etree._Element, xpath: str) -> Optional[etree._Element]:
+def find_element(html: etree._Element, xpath: str) -> Optional[etree._Element]: # pylint: disable=c-extension-no-member
     elements = html.xpath(xpath)
     return elements[0] if elements else None
 
@@ -62,7 +71,7 @@ class Base(ABC):
         interval: int = 1,
     ) -> None:
         self.headers = get_headers(header_file_path)
-        self.proxies = {'http': proxy, 'https': proxy}
+        self.proxies = {'http': proxy, 'https': proxy} if proxy else {}
         self.logger = logger or getLogger('dummy')
         self.interval = interval
 
