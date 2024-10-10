@@ -1,5 +1,7 @@
 # PT-Crawler
 
+![license](https://img.shields.io/badge/license-MIT-green)
+![pytest](https://github.com/zqmillet/pt-crawler/actions/workflows/pytest.yml/badge.svg)
 ![pylint](https://github.com/zqmillet/pt-crawler/actions/workflows/pylint.yml/badge.svg)
 ![mypy](https://github.com/zqmillet/pt-crawler/actions/workflows/mypy.yml/badge.svg)
 
