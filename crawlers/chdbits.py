@@ -1,15 +1,48 @@
 from re import match
+from typing import List
+from typing import Dict
+from typing import Optional
+from http import HTTPStatus
 
 from lxml import etree # pylint: disable=c-extension-no-member
+from pydantic import ValidationError
 
 from .base import Base
 from .base import User
+from .base import Torrent
+from .base import Promotion
 from .base import get_id_from_href
 from .base import find_element
 from .base import calculate_bytes
+from .base import convert_to_bytes
 from .exceptions import CannotGetUserInformationException
+from .exceptions import CannotGetTorrentInformationException
+from .exceptions import RequestException
+
+def get_promotion(element: Optional[etree._Element]) -> Promotion: # pylint: disable=c-extension-no-member
+    if element is None:
+        return Promotion(upload_ratio=1, download_ratio=1)
+
+    clazz = element.get('class')
+    if not clazz:
+        return Promotion(upload_ratio=1, download_ratio=1)
+
+    if clazz == 'pro_free':
+        return Promotion(upload_ratio=1, download_ratio=0)
+
+    if clazz == 'pro_50pctdown':
+        return Promotion(upload_ratio=1, download_ratio=0.5)
+
+    if clazz == 'pro_30pctdown':
+        return Promotion(upload_ratio=1, download_ratio=0.3)
+
+    return Promotion(upload_ratio=1, download_ratio=1)
 
 class CHDBits(Base):
+    def __init__(self, *args, hr_policy: Optional[Dict[str, int]] = None, **kwargs) -> None: # type: ignore
+        super().__init__(*args, **kwargs)
+        self.hr_policy = {'h3': 3 * 24 * 3600, 'h5': 5 * 24 * 3600}
+
     def get_user(self) -> User:
         pattern = r'[\s\S]*'.join(
             [
@@ -21,6 +54,8 @@ class CHDBits(Base):
         )
 
         response = self.session.get(url='https://ptchdbits.co/usercp.php')
+        if not response.status_code == HTTPStatus.OK:
+            raise RequestException(response)
 
         html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
 
@@ -47,3 +82,54 @@ class CHDBits(Base):
             email=email_element.text,
             bonus=float(result.group('bonus').replace(',', ''))
         )
+
+    def get_torrents(self, pages: int = 1) -> List[Torrent]:
+        torrents = []
+        for page in range(pages):
+            response = self.session.get(
+                url='https://ptchdbits.co/torrents.php',
+                params={'page': str(page), 'incldead': '0', 'spstate': '0'}
+            )
+
+            if not response.status_code == HTTPStatus.OK:
+                raise RequestException(response)
+
+            html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
+            _, *rows = html.xpath('/html/body/table[2]/tr[2]/td/table/tr/td/table/tr')
+
+            for row in rows:
+                title_element = find_element(row, 'td[2]/table/tr/td[1]/a')
+                size_element = find_element(row, 'td[5]')
+                seeders_element = find_element(row, 'td[6]')
+                leechers_element = find_element(row, 'td[7]')
+                hit_and_run_element = find_element(row, './/div[@class="circle-text"]')
+                promotion_element = find_element(row, './/img[starts-with(@class, "pro_")]')
+
+                if title_element is None or size_element is None or seeders_element is None or leechers_element is None:
+                    self.logger.warning(CannotGetTorrentInformationException())
+                    continue
+
+                torrent_id = get_id_from_href(title_element.get('href'))
+                size = convert_to_bytes(' '.join(size_element.itertext()))
+
+                if not torrent_id or not size:
+                    self.logger.warning(CannotGetTorrentInformationException())
+                    continue
+
+                try:
+                    torrent = Torrent(
+                        torrent_id=torrent_id,
+                        torrent_name=''.join(title_element.itertext()),
+                        size=size,
+                        seeders=int(''.join(seeders_element.itertext())),
+                        leechers=int(''.join(leechers_element.itertext())),
+                        hit_and_run=self.hr_policy.get(hit_and_run_element.text, 0) if hit_and_run_element is not None else 0,
+                        promotion=get_promotion(promotion_element),
+                        crawler=self
+                    )
+                except ValidationError as exception:
+                    self.logger.warning(exception)
+                else:
+                    torrents.append(torrent)
+
+        return torrents

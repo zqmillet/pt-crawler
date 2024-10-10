@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 from typing import List
 from typing import Dict
@@ -62,6 +63,23 @@ class User(BaseModel):
     email: str
     bonus: float
 
+class Promotion(BaseModel):
+    upload_ratio: float
+    download_ratio: float
+
+class Torrent(BaseModel):
+    torrent_id: str
+    torrent_name: str
+    size: int
+    seeders: int
+    leechers: int
+    hit_and_run: int
+    promotion: Promotion
+    crawler: Base
+
+    class Config:
+        arbitrary_types_allowed = True
+
 class Base(ABC):
     def __init__(
         self,
@@ -69,11 +87,13 @@ class Base(ABC):
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         interval: int = 1,
+        hr_policy: Optional[Dict[str, int]] = None
     ) -> None:
         self.headers = get_headers(header_file_path)
         self.proxies = {'http': proxy, 'https': proxy} if proxy else {}
         self.logger = logger or getLogger('dummy')
         self.interval = interval
+        self.hr_policy = hr_policy or {}
 
         self.session = Session()
         self.session.proxies.update(self.proxies)
@@ -85,3 +105,9 @@ class Base(ABC):
     @abstractmethod
     def get_user(self) -> User:
         return NotImplemented
+
+    @abstractmethod
+    def get_torrents(self, pages: int = 1) -> List[Torrent]:
+        return NotImplemented
+
+Torrent.update_forward_refs()

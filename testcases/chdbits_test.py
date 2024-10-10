@@ -17,3 +17,7 @@ def test_interval(crawler):
 def test_get_user(crawler):
     user = crawler.get_user()
     print(user)
+
+def test_get_torrents(crawler):
+    for torrent in crawler.get_torrents():
+        print(torrent)
