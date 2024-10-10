@@ -73,7 +73,7 @@ class User(BaseModel):
     user_name: str
     upload_bytes: int
     download_bytes: int
-    email: str
+    email: Optional[str]
     bonus: float
 
 class Promotion(BaseModel):
