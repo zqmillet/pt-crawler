@@ -2,7 +2,7 @@ name: pytest
 on: [push]
 jobs:
   test_on_macos:
-    runs-on: macos-latest
+    runs-on: linux-latest
     strategy:
       matrix:
         python-version: [3.9]
