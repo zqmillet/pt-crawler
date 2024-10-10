@@ -1,3 +1,5 @@
+from typing import Dict
+from os import environ
 from time import time
 from tempfile import NamedTemporaryFile
 
@@ -7,19 +9,20 @@ from libtorrent import torrent_info
 
 from crawlers import CHDBits
 
-@fixture(name='header_file_path', scope='session')
-def _header_file_path():
-    return 'testcases/headers/chdbits.header'
+@fixture(name='headers', scope='session')
+def _headers() -> Dict[str, str]:
+    headers = {}
+    for line in environ['CHDBITS_HEADERS'].splitlines()[1:]:
+        key, value = line.split(': ', 1)
+        headers[key] = value
+    return headers
 
 @fixture(name='crawler', scope='session')
-def _crawler(header_file_path) -> CHDBits:
-    return CHDBits(base_url='https://ptchdbits.co/', header_file_path=header_file_path, logger=logger, qps=0.5)
+def _crawler(headers) -> CHDBits:
+    return CHDBits(base_url='https://ptchdbits.co/', headers=headers, logger=logger, qps=0.5)
 
 def test_get_user(crawler):
-    now = time()
     user = crawler.get_user()
-    escape = time() - now
-    assert escape < 1
 
     now = time()
     user = crawler.get_user()

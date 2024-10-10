@@ -25,6 +25,6 @@ jobs:
         mkdir testcases/headers
         echo $CHDBITS_HEADER >> testcases/headers/chdbits.header
     - name: Test with pytest
-      run: |
-        export PYTHONPATH='.'
-        pytest testcases -vv
+      run: pytest testcases -vv
+      env:
+        CHDBITS_HEADERS: ${{ secrets.CHDBITS_HEADERS }}

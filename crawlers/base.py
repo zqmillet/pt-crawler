@@ -101,14 +101,14 @@ class Base(ABC):
     def __init__(
         self,
         base_url: str,
-        header_file_path: str,
+        headers: Dict[str, str],
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
         hr_policy: Optional[Dict[str, int]] = None
     ) -> None:
         self.base_url = base_url
-        self.headers = get_headers(header_file_path)
+        self.headers = headers
         self.proxies = {'http': proxy, 'https': proxy} if proxy else {}
         self.logger = logger or getLogger('dummy')
         self.hr_policy = hr_policy or {}
