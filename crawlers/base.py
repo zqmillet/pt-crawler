@@ -6,13 +6,15 @@ from logging import Logger
 from logging import getLogger
 from abc import ABC
 from abc import abstractmethod
+from math import inf
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 from re import match
 
 from pydantic import BaseModel
-from requests import Session
 from lxml import etree
+
+from .session import Session
 
 def get_headers(header_file_path: str) -> Dict[str, str]:
     with open(header_file_path, 'r', encoding='utf8') as file:
@@ -86,16 +88,15 @@ class Base(ABC):
         header_file_path: str,
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
-        interval: int = 1,
+        qps: float = inf,
         hr_policy: Optional[Dict[str, int]] = None
     ) -> None:
         self.headers = get_headers(header_file_path)
         self.proxies = {'http': proxy, 'https': proxy} if proxy else {}
         self.logger = logger or getLogger('dummy')
-        self.interval = interval
         self.hr_policy = hr_policy or {}
 
-        self.session = Session()
+        self.session = Session(qps=qps)
         self.session.proxies.update(self.proxies)
         self.session.headers.update(self.headers)
 
