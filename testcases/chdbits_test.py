@@ -1,6 +1,9 @@
+from time import time
+from tempfile import NamedTemporaryFile
+
 from pytest import fixture
 from loguru import logger
-from time import time
+from libtorrent import torrent_info
 
 from crawlers import CHDBits
 
@@ -40,3 +43,21 @@ def test_get_torrent(crawler):
 
     torrent = crawler.get_torrent('392050')
     print(torrent)
+
+def test_download_torrent(crawler):
+    with NamedTemporaryFile('wb') as file:
+        crawler.download_torrent('392799', file.name)
+        information = torrent_info(file.name)
+        assert information.is_valid()
+
+    with NamedTemporaryFile('wb') as file:
+        torrent = crawler.get_torrent('392799')
+        torrent.save(file.name)
+
+        information = torrent_info(file.name)
+        assert information.is_valid()
+
+def test_get_tasks(crawler):
+    tasks = crawler.get_tasks()
+    for task in tasks:
+        print(task)

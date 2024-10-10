@@ -7,6 +7,7 @@ from logging import getLogger
 from abc import ABC
 from abc import abstractmethod
 from math import inf
+from enum import Enum
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 from re import match
@@ -57,6 +58,15 @@ def find_element(html: etree._Element, xpath: str) -> Optional[etree._Element]: 
     elements = html.xpath(xpath)
     return elements[0] if elements else None
 
+class Status(str, Enum):
+    LEECHING = 'leeching'
+    SEEDING = 'seeding'
+
+class Task(BaseModel):
+    torrent_id: str
+    torrent_name: str
+    status: Status
+
 class User(BaseModel):
     user_id: str
     user_name: str
@@ -82,6 +92,9 @@ class Torrent(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+    def save(self, file_path: str) -> None:
+        self.crawler.download_torrent(self.torrent_id, file_path)
 
 class Base(ABC):
     def __init__(
@@ -116,6 +129,14 @@ class Base(ABC):
 
     @abstractmethod
     def get_torrent(self, torrent_id: str) -> Torrent:
+        return NotImplemented
+
+    @abstractmethod
+    def download_torrent(self, torrent_id: str, file_path: str) -> bool:
+        return NotImplemented
+
+    @abstractmethod
+    def get_tasks(self) -> List[Task]:
         return NotImplemented
 
 Torrent.update_forward_refs()

@@ -10,9 +10,11 @@ from pydantic import ValidationError
 from .base import Base
 from .base import User
 from .base import Torrent
+from .base import Task
 from .base import Promotion
 from .base import get_id_from_href
 from .base import find_element
+from .base import Status
 from .base import calculate_bytes
 from .base import convert_to_bytes
 from .exceptions import CannotGetUserInformationException
@@ -192,3 +194,48 @@ class CHDBits(Base):
             crawler=self,
             hit_and_run=hit_and_run
         )
+
+    def download_torrent(self, torrent_id: str, file_path: str) -> bool:
+        response = self.session.get(
+            url=self.base_url + '/download.php',
+            params={'id': torrent_id}
+        )
+
+        if not response.status_code == HTTPStatus.OK:
+            self.logger.warning(RequestException(response))
+            return False
+
+        with open(file_path, 'wb') as file:
+            file.write(response.content)
+            return True
+
+    def get_tasks(self) -> List[Task]:
+        user = self.get_user()
+        tasks = []
+
+        for status in [Status.LEECHING, Status.SEEDING]:
+            response = self.session.get(
+                url=self.base_url + '/getusertorrentlistajax.php',
+                params={'userid': user.user_id, 'type': status}
+            )
+
+            if not response.status_code == HTTPStatus.OK:
+                self.logger.warning(RequestException(response))
+                continue
+
+            html = etree.HTML(response.text) # pylint: disable = c-extension-no-member
+
+            _, *rows = html.xpath('//tr')
+            for row in rows:
+                title_element = find_element(row, 'td[2]/a')
+                href = title_element.get('href') or '' if title_element is not None else ''
+                torrent_id = get_id_from_href(href)
+                torrent_name = title_element.get('title') if title_element is not None else ''
+
+                if not torrent_name or not torrent_id:
+                    self.logger.warning('2333')
+                    continue
+
+                tasks.append(Task(torrent_id=torrent_id, torrent_name=torrent_name, status=status))
+
+        return tasks
