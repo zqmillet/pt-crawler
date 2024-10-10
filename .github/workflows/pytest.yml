@@ -1,8 +1,8 @@
 name: pytest
 on: [push]
 jobs:
-  test_on_macos:
-    runs-on: macos-latest
+  test_on_linux:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.9]
