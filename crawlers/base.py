@@ -77,6 +77,7 @@ class Torrent(BaseModel):
     leechers: int
     hit_and_run: int
     promotion: Promotion
+    download_url: str
     crawler: Base
 
     class Config:
@@ -85,12 +86,14 @@ class Torrent(BaseModel):
 class Base(ABC):
     def __init__(
         self,
+        base_url: str,
         header_file_path: str,
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
         hr_policy: Optional[Dict[str, int]] = None
     ) -> None:
+        self.base_url = base_url
         self.headers = get_headers(header_file_path)
         self.proxies = {'http': proxy, 'https': proxy} if proxy else {}
         self.logger = logger or getLogger('dummy')
@@ -109,6 +112,10 @@ class Base(ABC):
 
     @abstractmethod
     def get_torrents(self, pages: int = 1) -> List[Torrent]:
+        return NotImplemented
+
+    @abstractmethod
+    def get_torrent(self, torrent_id: str) -> Torrent:
         return NotImplemented
 
 Torrent.update_forward_refs()

@@ -41,7 +41,12 @@ def get_promotion(element: Optional[etree._Element]) -> Promotion: # pylint: dis
 class CHDBits(Base):
     def __init__(self, *args, hr_policy: Optional[Dict[str, int]] = None, **kwargs) -> None: # type: ignore
         super().__init__(*args, **kwargs)
-        self.hr_policy = {'h3': 3 * 24 * 3600, 'h5': 5 * 24 * 3600}
+        self.hr_policy = {
+            'h3': 3 * 24 * 3600,
+            'h5': 5 * 24 * 3600,
+            '3day': 3 * 24 * 3600,
+            '5day': 5 * 24 * 3600,
+        }
 
     def get_user(self) -> User:
         pattern = r'[\s\S]*'.join(
@@ -53,7 +58,7 @@ class CHDBits(Base):
             ]
         )
 
-        response = self.session.get(url='https://ptchdbits.co/usercp.php')
+        response = self.session.get(url=self.base_url + '/usercp.php')
         if not response.status_code == HTTPStatus.OK:
             raise RequestException(response)
 
@@ -87,7 +92,7 @@ class CHDBits(Base):
         torrents = []
         for page in range(pages):
             response = self.session.get(
-                url='https://ptchdbits.co/torrents.php',
+                url=self.base_url + '/torrents.php',
                 params={'page': str(page), 'incldead': '0', 'spstate': '0'}
             )
 
@@ -125,7 +130,8 @@ class CHDBits(Base):
                         leechers=int(''.join(leechers_element.itertext())),
                         hit_and_run=self.hr_policy.get(hit_and_run_element.text, 0) if hit_and_run_element is not None else 0,
                         promotion=get_promotion(promotion_element),
-                        crawler=self
+                        crawler=self,
+                        download_url=self.base_url + f'/download.php?id={torrent_id}'
                     )
                 except ValidationError as exception:
                     self.logger.warning(exception)
@@ -133,3 +139,56 @@ class CHDBits(Base):
                     torrents.append(torrent)
 
         return torrents
+
+    def get_torrent(self, torrent_id: str) -> Torrent:
+        response = self.session.get(
+            url=self.base_url + '/details.php',
+            params={'hit': '1', 'id': torrent_id}
+        )
+
+        if not response.status_code == HTTPStatus.OK:
+            raise RequestException(response)
+
+        html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
+
+        title_element = find_element(html, '//*[@id="top"]')
+        base_information_element = find_element(html, '//*[@id="outer"]/table[1]/tr[3]/td[2]')
+        download_url_element = find_element(html, '//*[@id="outer"]/table[1]/tr[5]/td[2]/a')
+        seeder_and_leecher_element = find_element(html, '//*[@id="peercount"]')
+        promotion_element = find_element(title_element, './/img[starts-with(@class, "pro_")]')
+
+        if title_element is None or base_information_element is None or download_url_element is None or seeder_and_leecher_element is None:
+            raise CannotGetTorrentInformationException()
+
+        result = match(r'大小：(?P<size_number>.+)类型', ''.join(base_information_element.itertext()))
+        if not result:
+            raise CannotGetTorrentInformationException()
+        size = convert_to_bytes(result.group('size_number').strip())
+
+        result = match(r'[\s\S]*H&R:(?P<hit_and_run_string>.+)', ''.join(base_information_element.itertext()))
+        if not result:
+            hit_and_run = 0
+        else:
+            hit_and_run = self.hr_policy.get(result.group('hit_and_run_string').strip(), 0)
+
+        torrent_name = title_element.text.strip()
+        download_url = download_url_element.get('href')
+        if not download_url:
+            raise CannotGetTorrentInformationException()
+
+        result = match(r'(?P<seeder_number>.+)个做种者 \| (?P<leecher_number>.+)个下载者', ''.join(seeder_and_leecher_element.itertext()))
+
+        if not result or not size:
+            raise CannotGetTorrentInformationException()
+
+        return Torrent(
+            torrent_id=torrent_id,
+            torrent_name=torrent_name,
+            size=size,
+            download_url=download_url,
+            seeders=int(result.group('seeder_number')),
+            leechers=int(result.group('leecher_number')),
+            promotion=get_promotion(promotion_element),
+            crawler=self,
+            hit_and_run=hit_and_run
+        )

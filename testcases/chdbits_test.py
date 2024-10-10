@@ -10,7 +10,7 @@ def _header_file_path():
 
 @fixture(name='crawler', scope='session')
 def _crawler(header_file_path) -> CHDBits:
-    return CHDBits(header_file_path=header_file_path, logger=logger, qps=0.5)
+    return CHDBits(base_url='https://ptchdbits.co/', header_file_path=header_file_path, logger=logger, qps=0.5)
 
 def test_get_user(crawler):
     now = time()
@@ -31,5 +31,12 @@ def test_get_user(crawler):
     print(user)
 
 def test_get_torrents(crawler):
-    for torrent in crawler.get_torrents():
-        pass
+    assert len(crawler.get_torrents()) == 100
+    assert len(crawler.get_torrents(pages=2)) == 200
+
+def test_get_torrent(crawler):
+    torrent = crawler.get_torrent('392799')
+    print(torrent)
+
+    torrent = crawler.get_torrent('392050')
+    print(torrent)
