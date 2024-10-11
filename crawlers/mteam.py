@@ -172,7 +172,6 @@ class MTeam(Base):
             user_name=profile_response.data.user_name,
             email=profile_response.data.email,
             upload_bytes=profile_response.data.member_count.upload_bytes,
-
             download_bytes=profile_response.data.member_count.download_bytes,
             bonus=profile_response.data.member_count.bonus,
         )

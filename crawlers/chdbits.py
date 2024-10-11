@@ -86,8 +86,9 @@ class CHDBits(Base):
         email_element = find_element(html, '//*[@id="outer"]/table[2]/tr[2]/td[2]')
         user_id_element = find_element(html, '//*[@id="info_block"]/tr/td/table/tr/td[1]/span/span/a')
         title_element = find_element(html, '//*[@id="info_block"]/tr/td/table/tr/td[1]/span')
+        passkey_element = find_element(html, '//*[@id="outer"]/table[2]/tr[4]/td[2]')
 
-        if email_element is None or user_id_element is None or title_element is None:
+        if email_element is None or user_id_element is None or title_element is None or passkey_element is None:
             raise CannotGetUserInformationException()
 
         result = match(pattern, ''.join(title_element.itertext()))
@@ -104,7 +105,8 @@ class CHDBits(Base):
             upload_bytes=calculate_bytes(result.group('upload'), result.group('upload_unit')),
             download_bytes=calculate_bytes(result.group('download'), result.group('download_unit')),
             email=email_element.text,
-            bonus=float(result.group('bonus').replace(',', ''))
+            bonus=float(result.group('bonus').replace(',', '')),
+            passkey=passkey_element.text
         )
 
     def get_torrents(self, pages: int = 1) -> List[Torrent]:

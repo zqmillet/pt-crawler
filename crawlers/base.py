@@ -14,6 +14,7 @@ from urllib.parse import parse_qs
 from re import match
 
 from pydantic import BaseModel
+from pydantic import Field
 from lxml import etree
 
 from .session import Session
@@ -75,6 +76,7 @@ class User(BaseModel):
     download_bytes: int
     email: Optional[str]
     bonus: float
+    passkey: Optional[str] = Field(default=None)
 
 class Promotion(BaseModel):
     upload_ratio: float
