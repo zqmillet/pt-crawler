@@ -28,6 +28,7 @@ jobs:
       env:
         CHDBITS_HEADERS: ${{ secrets.CHDBITS_HEADERS }}
         MTEAM_HEADERS: ${{ secrets.MTEAM_HEADERS }}
+        FSM_HEADERS: ${{ secrets.FSM_HEADERS }}
         PYTHONPATH: .
     - name: Update converage
       uses: codecov/codecov-action@v2
