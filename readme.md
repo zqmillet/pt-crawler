@@ -111,7 +111,7 @@ python3 -m pip install pt-crawler
 
   第二种方法是调用 `Torrent` 对象的 `save` 方法.
 
-  ```
+  ``` python
   >>> torrent = chdbits.get_torrent(torrent_id='393088')
   >>> torrent.save('demo.torrent')
   True
