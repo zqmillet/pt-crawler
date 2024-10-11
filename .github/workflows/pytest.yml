@@ -28,4 +28,5 @@ jobs:
       run: pytest testcases -vv
       env:
         CHDBITS_HEADERS: ${{ secrets.CHDBITS_HEADERS }}
+        MTEAM_HEADERS: ${{ secrets.MTEAM_HEADERS }}
         PYTHONPATH: .
