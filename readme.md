@@ -4,6 +4,7 @@
 ![pytest](https://github.com/zqmillet/pt-crawler/actions/workflows/pytest.yml/badge.svg)
 ![pylint](https://github.com/zqmillet/pt-crawler/actions/workflows/pylint.yml/badge.svg)
 ![mypy](https://github.com/zqmillet/pt-crawler/actions/workflows/mypy.yml/badge.svg)
+[![codecov](https://codecov.io/github/zqmillet/pt-crawler/graph/badge.svg?token=KY6EZ4Y4ER)](https://codecov.io/github/zqmillet/pt-crawler)
 
 写这个项目, 一是自己有需求, 二是好久没写代码了, 巩固一下. 如果这个项目对你有帮助, 可以 star + fork 二连, 如果你发现一些问题或者有一些其他想法, 也欢迎提 issue.
 
