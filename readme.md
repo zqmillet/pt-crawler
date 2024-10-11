@@ -52,7 +52,7 @@ python3 -m pip install pt-crawler
   
   ``` python
   >>> chdbits.get_user()
-  User(user_id='131177', user_name='zqmillet', upload_bytes=2958864955182416, download_bytes=2112161836957, email='zqmillet@qq.com', bonus=219185.6, passkey='****')
+  User(user_id='your_id', user_name='your_name', upload_bytes=123456789, download_bytes=123456789, email='email@qq.com', bonus=233.33, passkey='****')
   ```
   
   如果网络和权限都没问题, `get_user` 函数会返回 `User` 对象, `User` 对象包含登录用户的基本信息:
