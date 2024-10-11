@@ -20,7 +20,7 @@ def _headers() -> Dict[str, str]:
 
 @fixture(name='crawler', scope='session')
 def _crawler(headers) -> MTeam:
-    return MTeam(base_url='https://api.m-team.cc', headers=headers, logger=logger, qps=0.5)
+    return MTeam(headers=headers, logger=logger, qps=0.5)
 
 def test_get_user(crawler):
     user = crawler.get_user()

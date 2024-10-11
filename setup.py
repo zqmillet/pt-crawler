@@ -11,7 +11,7 @@ with open('crawlers/requirements.txt', 'r', encoding='utf8') as file:
 
 
 setup(
-    name='jmm',
+    name='pt-crawler',
     version=VERSION,
     author='kinopico',
     author_email='zqmillet@qq.com',

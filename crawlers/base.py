@@ -99,8 +99,8 @@ class Torrent(BaseModel):
 class Base(ABC):
     def __init__(
         self,
-        base_url: str,
         headers: Dict[str, str],
+        base_url: str,
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,

@@ -1,10 +1,13 @@
 from re import match
+from math import inf
 from typing import List
 from typing import Dict
 from typing import Optional
 from http import HTTPStatus
+from logging import Logger
 
 from lxml import etree # pylint: disable=c-extension-no-member
+
 from pydantic import ValidationError
 
 from .base import Base
@@ -41,8 +44,22 @@ def get_promotion(element: Optional[etree._Element]) -> Promotion: # pylint: dis
     return Promotion(upload_ratio=1, download_ratio=1)
 
 class CHDBits(Base):
-    def __init__(self, *args, hr_policy: Optional[Dict[str, int]] = None, **kwargs) -> None: # type: ignore
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        headers: Dict[str, str],
+        base_url: str = 'https://ptchdbits.co',
+        proxy: Optional[str] = None,
+        logger: Optional[Logger] = None,
+        qps: float = inf,
+        hr_policy: Optional[Dict[str, int]] = None,
+    ) -> None:
+        super().__init__(
+            headers=headers,
+            base_url=base_url,
+            proxy=proxy,
+            logger=logger,
+            qps=qps
+        )
         self.hr_policy = {
             'h3': 3 * 24 * 3600,
             'h5': 5 * 24 * 3600,

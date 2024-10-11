@@ -19,7 +19,7 @@ def _headers() -> Dict[str, str]:
 
 @fixture(name='crawler', scope='session')
 def _crawler(headers) -> CHDBits:
-    return CHDBits(base_url='https://ptchdbits.co/', headers=headers, logger=logger, qps=0.5)
+    return CHDBits(headers=headers, logger=logger, qps=0.5)
 
 def test_get_user(crawler):
     user = crawler.get_user()
