@@ -90,7 +90,7 @@ class Torrent(BaseModel):
     leechers: int
     hit_and_run: int
     promotion: Promotion
-    crawler: Base
+    crawler: Crawler
 
     class Config:
         arbitrary_types_allowed = True
@@ -98,7 +98,7 @@ class Torrent(BaseModel):
     def save(self, file_path: str) -> None:
         self.crawler.download_torrent(self.torrent_id, file_path)
 
-class Base(ABC):
+class Crawler(ABC):
     def __init__(
         self,
         headers: Dict[str, str],

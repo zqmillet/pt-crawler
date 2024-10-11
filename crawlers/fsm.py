@@ -10,7 +10,7 @@ from pydantic import Field
 from pydantic import validator
 from pydantic import ValidationError
 
-from .base import Base
+from .base import Crawler
 from .base import Torrent
 from .base import Status
 from .base import User
@@ -79,7 +79,7 @@ class GetTorrentData(BaseModel):
 class GetTorrentResponse(BaseModel):
     data: GetTorrentData
 
-class FSM(Base):
+class FSM(Crawler):
     def __init__(
         self,
         headers: Dict[str, str],

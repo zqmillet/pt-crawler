@@ -12,6 +12,14 @@
 
 该项目的初衷是为了刷流, 因此只开发了刷流相关的 API, 如果需要其他的 API, 也可以提 issue 给我.
 
+目前 pt-crawler 支持的站点有:
+
+| 别称 | 类                 |
+|------|--------------------|
+| 岛   | `crawlers.CHDBits` |
+| 馒头 | `crawlers.MTeam`   |
+| 拉面 | `crawlers.FSM`     |
+
 ## 安装
 
 ``` bash
@@ -26,15 +34,19 @@ python3 -m pip install pt-crawler
 
 ## 使用
 
-- 导入 `CHDBits` 类, 并进行实例化. 其他的类 API 接口与 `CHDBits` 一致.
+这里以岛为例, 来说明如何使用 pt-crawler. 其他的类 API 接口与 `CHDBits` 一致.
+
+- 导入 `CHDBits` 类, 并进行实例化.
   
   ``` python
   >>> from crawlers import CHDBits
   
-  >>> headers = {'Cookie': 'your token, you can get it from browser'}
+  >>> headers = {'Cookie': 'your cookie, you can get it from browser'}
   
   >>> chdbits = CHDBits(headers=headers)
   ```
+
+  注意, 不同的站点, 要求的 `headers` 是不同的.
   
 - 调用 `get_user`, 验证权限是否正常.
   

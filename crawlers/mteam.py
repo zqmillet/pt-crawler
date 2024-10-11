@@ -10,7 +10,7 @@ from pydantic import Field
 from pydantic import validator
 from pydantic import ValidationError
 
-from .base import Base
+from .base import Crawler
 from .base import User
 from .base import Task
 from .base import Torrent
@@ -102,7 +102,7 @@ class DITokenResponse(BaseModel):
     message: str
     download_url: str = Field(alias='data')
 
-class MTeam(Base):
+class MTeam(Crawler):
     def __init__(
         self,
         headers: Dict[str, str],

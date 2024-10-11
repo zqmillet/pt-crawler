@@ -10,7 +10,7 @@ from lxml import etree # pylint: disable=c-extension-no-member
 
 from pydantic import ValidationError
 
-from .base import Base
+from .base import Crawler
 from .base import User
 from .base import Torrent
 from .base import Task
@@ -43,7 +43,7 @@ def get_promotion(element: Optional[etree._Element]) -> Promotion: # pylint: dis
 
     return Promotion(upload_ratio=1, download_ratio=1)
 
-class CHDBits(Base):
+class CHDBits(Crawler):
     def __init__(
         self,
         headers: Dict[str, str],
