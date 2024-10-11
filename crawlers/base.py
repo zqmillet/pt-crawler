@@ -88,7 +88,6 @@ class Torrent(BaseModel):
     leechers: int
     hit_and_run: int
     promotion: Promotion
-    download_url: str
     crawler: Base
 
     class Config:

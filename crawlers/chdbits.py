@@ -133,7 +133,6 @@ class CHDBits(Base):
                         hit_and_run=self.hr_policy.get(hit_and_run_element.text, 0) if hit_and_run_element is not None else 0,
                         promotion=get_promotion(promotion_element),
                         crawler=self,
-                        download_url=self.base_url + f'/download.php?id={torrent_id}'
                     )
                 except ValidationError as exception:
                     self.logger.warning(exception)
@@ -155,11 +154,10 @@ class CHDBits(Base):
 
         title_element = find_element(html, '//*[@id="top"]')
         base_information_element = find_element(html, '//*[@id="outer"]/table[1]/tr[3]/td[2]')
-        download_url_element = find_element(html, '//*[@id="outer"]/table[1]/tr[5]/td[2]/a')
         seeder_and_leecher_element = find_element(html, '//*[@id="peercount"]')
         promotion_element = find_element(title_element, './/img[starts-with(@class, "pro_")]')
 
-        if title_element is None or base_information_element is None or download_url_element is None or seeder_and_leecher_element is None:
+        if title_element is None or base_information_element is None or seeder_and_leecher_element is None:
             raise CannotGetTorrentInformationException()
 
         result = match(r'大小：(?P<size_number>.+)类型', ''.join(base_information_element.itertext()))
@@ -174,9 +172,6 @@ class CHDBits(Base):
             hit_and_run = self.hr_policy.get(result.group('hit_and_run_string').strip(), 0)
 
         torrent_name = title_element.text.strip()
-        download_url = download_url_element.get('href')
-        if not download_url:
-            raise CannotGetTorrentInformationException()
 
         result = match(r'(?P<seeder_number>.+)个做种者 \| (?P<leecher_number>.+)个下载者', ''.join(seeder_and_leecher_element.itertext()))
 
@@ -187,7 +182,6 @@ class CHDBits(Base):
             torrent_id=torrent_id,
             torrent_name=torrent_name,
             size=size,
-            download_url=download_url,
             seeders=int(result.group('seeder_number')),
             leechers=int(result.group('leecher_number')),
             promotion=get_promotion(promotion_element),
