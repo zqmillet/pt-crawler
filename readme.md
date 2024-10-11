@@ -161,3 +161,43 @@ python3 -m pip install pt-crawler
   >>> from loguru import logger
   >>> chdbits = CHDBits(headers=headers, logger=logger)
   ```
+
+## 开发
+
+### 添加新的爬虫类
+
+在 `crawlers` 文件夹中新建一个爬虫类文件. 在该文件中实现爬虫类, 该爬虫类必须继承 `crawlers.base.Crawler` 类, 并实现其所有抽象方法.
+
+在 `crawlers/__init__.py` 文件中引入你新建的爬虫类, 方便其他人导入.
+
+### 编写测试用例
+
+本工程使用的自动化测试框架为 pytest.
+
+在 `testcases` 文件夹中新建对应的爬虫类的单元测试, 并实现所有抽象方法的测试用例.
+
+### 执行测试用例
+
+首先运行 `pip3 install -r testcases/requirements.txt` 来安装运行测试必要的库, 然后执行以下命令来执行用例.
+
+``` bash
+$ pytest [--proxy <proxy>] --cov crawlers testcases
+```
+
+其中 `--proxy` 为可选参数, 如果需要通过代理访问站点, 请添加代理. 目前代理只支持 HTTP 和 HTTPS 两种类型.
+
+### 静态检查
+
+提交前请使用 mypy 和 pylint 对工程进行静态检查, 如果有任何静态问题, 请在提交前修复, 本项目对静态缺陷零容忍.
+
+``` bash
+$ mypy crawlers
+Success: no issues found in 7 source files
+```
+
+``` bash
+$ pylint crawlers
+Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
+```
+
+该项目也配置来 CICD, 每次提交都会自动执行所有测试用例以及静态检查.
