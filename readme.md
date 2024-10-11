@@ -200,4 +200,4 @@ $ pylint crawlers
 Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)
 ```
 
-该项目也配置来 CICD, 每次提交都会自动执行所有测试用例以及静态检查.
+该项目也配置了 CI/CD, 每次提交都会自动执行所有测试用例以及静态检查.
