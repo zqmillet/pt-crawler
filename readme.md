@@ -52,7 +52,7 @@ python3 -m pip install pt-crawler
   
   ``` python
   >>> chdbits.get_user()
-  User(user_id='131177', user_name='zqmillet', upload_bytes=2958864955182416, download_bytes=2112161836957, email='zqmillet@qq.com', bonus=219185.6)
+  User(user_id='131177', user_name='zqmillet', upload_bytes=2958864955182416, download_bytes=2112161836957, email='zqmillet@qq.com', bonus=219185.6, passkey='****')
   ```
   
   如果网络和权限都没问题, `get_user` 函数会返回 `User` 对象, `User` 对象包含登录用户的基本信息:
@@ -63,6 +63,7 @@ python3 -m pip install pt-crawler
   - `upload_bytes` 表示用户上传量, 单位 Byte.
   - `download_bytes` 表示用户下载量, 单位 Byte.
   - `bonus` 表示用户的魔力值.
+  - `passkey` 表示你自己的 passkey, 这个字段是可能是 `None`, 比如馒头, 网站上直接提供 passkey, 只能通过邮件告知 passkey, 难以通过爬虫获取.
 
 - 调用 `get_torrents` 获取种子列表.
 
