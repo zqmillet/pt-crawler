@@ -8,9 +8,9 @@
 
 写这个项目, 一是自己有需求, 二是好久没写代码了, 巩固一下. 如果这个项目对你有帮助, 可以 star + fork 二连, 如果你发现一些问题或者有一些其他想法, 也欢迎提 issue.
 
-这个以后会发到 PyPI 上的, 现在完成度太低, 暂时没上 PyPI.
-
 现在完成了岛和馒头的相关 API, 以后会加入其他的功能, 以及兼容更多的站点.
+
+该项目的初衷是为了刷流, 因此只开发了刷流相关的 API, 如果需要其他的 API, 也可以提 issue 给我.
 
 ## 安装
 
@@ -73,3 +73,78 @@ python3 -m pip install pt-crawler
   - `promotion` 表示种子的促销策略, 它包含两个字段:
     - `upload_ratio` 表示上传促销, 比如一个种子是 2xfree, 该字段的值为 `2`.
     - `download_ratio` 表示下载促销, 比如一个种子是 50%, 该字段为 `0.5`, 如果是 free 的种子, 该字段为 `0`.
+
+  值得一提的是 `get_torrents` 函数有一个参数 `pages` , 表示返回几页的种子, 默认值是 `1`.
+
+  ``` python
+  >>> torrents = chdbits.get_torrents(pages=3)
+  >>> len(torrents)
+  300
+  ```
+
+- 如果你知道种子 ID, 可以调用 `get_torrent` 函数获取某一个种子详情.
+
+  ``` python
+  >>> chdbits.get_torrent('393088')
+  Torrent(torrent_id='393088', torrent_name='Le Theoreme de Marguerite 2023 1080p Bluray REMUX AVC DTS-HDMA5.1-CHD', size=31643171553, seeders=106, leechers=7, hit_and_run=259200, promotion=Promotion(upload_ratio=1.0, download_ratio=0.0), crawler=<crawlers.chdbits.CHDBits object at 0x1074bf520>)
+  ```
+
+- 下载种子有两种方式, 第一种方式是调用 `CHDBits` 类的 `download_torrent` 方法.
+
+  ``` python
+  >>> chdbits.download_torrent(torrent_id='393088', file_path='demo.torrent')
+  True  
+  ```
+
+  第二种方法是调用 `Torrent` 对象的 `save` 方法.
+
+  ```
+  >>> torrent = chdbits.get_torrent(torrent_id='393088')
+  >>> torrent.save('demo.torrent')
+  True
+  ```
+
+  `CHDBits` 对象的 `download_torrent` 函数和 `Torrent` 对象的 `save` 方法在执行成功后会返回 `True`, 如果失败, 会返回 `False`.
+
+- 查询自己活动中的任务, 可以调用 `get_tasks` 函数.
+
+  ``` python
+  >>> tasks = chdbits.get_tasks()
+  >>> tasks[0]
+  Task(torrent_id='393202', torrent_name='The Yangtze River 2024 2160p HQ WEB-DL H265 60fps DDP5.1-CHDWEB', status=<Status.LEECHING: 'leeching'>)
+  ```
+
+  函数 `get_tasks` 返回一个 `List`, 其中元素类型为 `Task`, `Task` 对象包含任务的基本信息:
+
+  - `torrent_id` 表示种子的 ID.
+  - `torrent_name` 表示种子的英文名称.
+  - `status` 表示任务状态, `leeching` 表示正在下载, `seeding` 表示正在做种.
+
+- 如果要使用代理访问某个站点, 可以使用 `proxy` 参数来配置代理.
+
+  ``` python
+  >>> chdbits = CHDBits(headers=headers, proxy='http://localhost:1926')
+  ```
+
+- 如果要限制访问某个站点的频率, 可以设置 `qps` 参数.
+
+  ``` python
+  >>> chdbits = CHDBits(headers=headers, qps=3)
+  ```
+  
+  `qps = 3` 表示一秒钟最多访问 3 次, 如果你没设置 `qps` 参数, 那么则不会限制频率, 会短时间激增网站负载, 容易被封.
+
+- 如果一个站有多个域名, 你可以通过 `base_url` 参数来修改默认值.
+
+  ``` python
+  >>> chdbits = CHDBits(headers=headers, base_url='https://hello.world')
+  ```
+
+  注意: `base_url` 不要以 `/` 结尾.
+
+- 你可以为 `CHDBits` 指定一个日志对象, 这样 `CHDBits` 在运行的过程中, 会把异常信息输出到日志中.
+
+  ``` python
+  >>> from loguru import logger
+  >>> chdbits = CHDBits(headers=headers, logger=logger)
+  ```
