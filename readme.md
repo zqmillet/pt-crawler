@@ -14,11 +14,13 @@
 
 目前 pt-crawler 支持的站点有:
 
-| 别称 | 类                 |
-|------|--------------------|
-| 岛   | `crawlers.CHDBits` |
-| 馒头 | `crawlers.MTeam`   |
-| 拉面 | `crawlers.FSM`     |
+| 别称 | 类                  |
+|------|---------------------|
+| 岛   | `crawlers.CHDBits`  |
+| 馒头 | `crawlers.MTeam`    |
+| 拉面 | `crawlers.FSM`      |
+| 套套 | `crawlers.TTG`      |
+| 猫站 | `crawlers.PTerClub` |
 
 ## 安装
 
