@@ -83,7 +83,7 @@ class FSM(Crawler):
     def __init__(
         self,
         headers: Dict[str, str],
-        base_url: str = 'https://fsm.name',
+        base_url: str = 'https://api.fsm.name',
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
@@ -102,7 +102,7 @@ class FSM(Crawler):
 
         for page in range(pages):
             response = self.session.get(
-                url=self.base_url + '/api/Torrents/listTorrents',
+                url=self.base_url + '/Torrents/listTorrents',
                 params={
                     'type': '0',
                     'systematics': '0',
@@ -137,7 +137,7 @@ class FSM(Crawler):
         return torrents
 
     def get_user(self) -> User:
-        response = self.session.get(self.base_url + '/api/Users/infos')
+        response = self.session.get(self.base_url + '/Users/infos')
         if not response.status_code == HTTPStatus.OK:
             raise RequestException(response)
 
@@ -155,7 +155,7 @@ class FSM(Crawler):
 
     def get_torrent(self, torrent_id: str) -> Torrent:
         response = self.session.get(
-            url=self.base_url + '/api/Torrents/details',
+            url=self.base_url + '/Torrents/details',
             params={'tid': torrent_id}
         )
 
@@ -180,7 +180,7 @@ class FSM(Crawler):
         user = self.get_user()
 
         response = self.session.get(
-            url='https://api.fsm.name/Torrents/download',
+            url=self.base_url + '/Torrents/download',
             params={'passkey': user.passkey, 'tid': torrent_id, 'source': 'direct'}
         )
 
@@ -195,7 +195,7 @@ class FSM(Crawler):
     def get_tasks(self) -> List[Task]:
         page = 1
         tasks = []
-        for api_path, status in [('/api/Torrents/listMyDownload', Status.LEECHING), ('/api/Torrents/listMySeed', Status.SEEDING)]:
+        for api_path, status in [('/Torrents/listMyDownload', Status.LEECHING), ('/Torrents/listMySeed', Status.SEEDING)]:
             while True:
                 response = self.session.get(self.base_url + api_path, params={'page': str(page)})
 
