@@ -9,7 +9,6 @@ from logging import Logger
 from lxml import etree # pylint: disable=c-extension-no-member
 
 from pydantic import ValidationError
-from requests import get
 
 from .base import Crawler
 from .base import User
@@ -36,29 +35,29 @@ promotion_map = {
 
 def get_promotion_from_list(element: Optional[etree._Element]) -> Promotion: # pylint: disable=c-extension-no-member
     clazz = element.get('class') if element is not None else None
-    if clazz == 'pro_free':
-        return Promotion(upload_ratio=1, download_ratio=0)
-    if clazz == 'pro_50pctdown':
-        return Promotion(upload_ratio=1, download_ratio=0.5)
-    if clazz == 'pro_2up':
-        return Promotion(upload_ratio=2, download_ratio=1)
-    if clazz == 'pro_free2up':
-        return Promotion(upload_ratio=2, download_ratio=0)
     if clazz == 'pro_50pctdown2up':
         return Promotion(upload_ratio=2, download_ratio=0.5)
+    if clazz == 'pro_free':
+        return Promotion(upload_ratio=1, download_ratio=0)
+    if clazz == 'pro_free2up':
+        return Promotion(upload_ratio=2, download_ratio=0)
+    if clazz == 'pro_50pctdown':
+        return Promotion(upload_ratio=1, download_ratio=0.5)
     if clazz == 'pro_30pctdown':
         return Promotion(upload_ratio=1, download_ratio=0.3)
-    return Promotion(upload_ratio=1, download_ratio=1)
+    if clazz == 'pro_30pctdown':
+        return Promotion(upload_ratio=1, download_ratio=0.3)
+    return promotion_map.get(clazz, Promotion(upload_ratio=1, download_ratio=1))
 
 def get_promotion_from_detail(element: Optional[etree._Element]) -> Promotion: # pylint: disable=c-extension-no-member
     clazz = element.get('class') if element is not None else None
     return promotion_map.get(clazz, Promotion(upload_ratio=1, download_ratio=1))
 
-class PTerClub(Crawler):
+class RedLeaves(Crawler):
     def __init__(
         self,
         headers: Dict[str, str],
-        base_url: str = 'https://pterclub.com',
+        base_url: str = 'https://leaves.red',
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
@@ -75,10 +74,10 @@ class PTerClub(Crawler):
     def get_user(self) -> User:
         pattern = r'.*'.join(
             [
-                r'欢迎回来, (?P<user_name>.+) \[退出\]',
-                rf'\[使用 \| 站免池\]: (?P<bonus>{self.number_pattern}) 签到得猫粮',
-                rf'上传量： (?P<upload_number>{self.number_pattern}) (?P<upload_unit>{self.unit_pattern}) ',
-                rf'下载量： (?P<download_number>{self.number_pattern}) (?P<download_unit>{self.unit_pattern}) 做种积分'
+                r'欢迎回来, (?P<user_name>.+)\ue901',
+                rf'上传量: (?P<upload_number>{self.number_pattern}) (?P<upload_unit>{self.unit_pattern}) ',
+                rf'下载量: (?P<download_number>{self.number_pattern}) (?P<download_unit>{self.unit_pattern}) ',
+                rf'魔力值 : (?P<bonus>{self.number_pattern})'
             ]
         )
 
@@ -126,9 +125,10 @@ class PTerClub(Crawler):
                 raise RequestException(response)
 
             html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
-            _, *rows = html.xpath('/html/body/table[2]/tr[2]/td/table/tr/td/table/tr')
+            _, __, *rows = html.xpath('/html/body/table[2]/tr[2]/td/table/tr/td/table/tr')
 
             for row in rows:
+
                 title_element = find_element(row, 'td[2]//a[1]')
                 size_element = find_element(row, 'td[5]')
                 seeders_element = find_element(row, 'td[6]')
@@ -225,18 +225,9 @@ class PTerClub(Crawler):
         tasks = []
 
         for status in [Status.LEECHING, Status.SEEDING]:
-            response = get( # pylint: disable = missing-timeout
-                url=self.base_url + '/getusertorrentlist.php',
-                params={'userid': user.user_id, 'type': status, 'do_ajax': '1'},
-                headers={
-                    'Cookie': self.headers['Cookie'],
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Referer': f'https://pterclub.com/userdetails.php?id={user.user_id}',
-                    'Sec-Fetch-Dest': 'empty',
-                    'Sec-Fetch-Mode': 'cors',
-                    'Sec-Fetch-Site': 'same-origin',
-                    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-                }
+            response = self.session.get( # pylint: disable = missing-timeout
+                url=self.base_url + '/getusertorrentlistajax.php',
+                params={'userid': user.user_id, 'type': status},
             )
 
             if not response.status_code == HTTPStatus.OK:
