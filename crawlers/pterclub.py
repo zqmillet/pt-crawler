@@ -35,7 +35,7 @@ promotion_map = {
 }
 
 def get_promotion_from_list(element: Optional[etree._Element]) -> Promotion: # pylint: disable=c-extension-no-member
-    clazz = element.get('class') if element is not None else None
+    clazz = element.get('class') if element is not None else 'normal'
     if clazz == 'pro_free':
         return Promotion(upload_ratio=1, download_ratio=0)
     if clazz == 'pro_50pctdown':
@@ -51,7 +51,7 @@ def get_promotion_from_list(element: Optional[etree._Element]) -> Promotion: # p
     return Promotion(upload_ratio=1, download_ratio=1)
 
 def get_promotion_from_detail(element: Optional[etree._Element]) -> Promotion: # pylint: disable=c-extension-no-member
-    clazz = element.get('class') if element is not None else None
+    clazz = element.get('class') if element is not None else 'normal'
     return promotion_map.get(clazz, Promotion(upload_ratio=1, download_ratio=1))
 
 class PTerClub(Crawler):
