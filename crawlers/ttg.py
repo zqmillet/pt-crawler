@@ -162,7 +162,7 @@ class TTG(Crawler):
             raise CannotGetTorrentInformationException()
 
         size_result = match(rf'(?P<size_number>{self.number_pattern}) (?P<size_unit>{self.unit_pattern})', size_element.text)
-        seeders_and_leechers_result = match(rf'(?P<seeders>.+) 做种者，(?P<leechers>.+) 下载者', ''.join(seeders_and_leechers_element.itertext()))
+        seeders_and_leechers_result = match(r'(?P<seeders>.+) 做种者，(?P<leechers>.+) 下载者', ''.join(seeders_and_leechers_element.itertext()))
         if not size_result or not seeders_and_leechers_result:
             raise CannotGetTorrentInformationException()
 
