@@ -63,7 +63,7 @@ python3 -m pip install pt-crawler
   - `upload_bytes` 表示用户上传量, 单位 Byte.
   - `download_bytes` 表示用户下载量, 单位 Byte.
   - `bonus` 表示用户的魔力值.
-  - `passkey` 表示你自己的 passkey, 这个字段是可能是 `None`, 比如馒头, 网站上直接提供 passkey, 只能通过邮件告知 passkey, 难以通过爬虫获取.
+  - `passkey` 表示你自己的 passkey, 这个字段是可能是 `None`, 比如馒头, 网站上不直接提供 passkey, 只能通过邮件告知 passkey, 难以通过爬虫获取.
 
 - 调用 `get_torrents` 获取种子列表.
 

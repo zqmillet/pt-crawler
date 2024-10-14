@@ -7,20 +7,19 @@ from pytest import fixture
 from loguru import logger
 from libtorrent import torrent_info
 
-from crawlers import MTeam
-from crawlers.base import Status
+from crawlers import TTG
 
 @fixture(name='headers', scope='session')
 def _headers() -> Dict[str, str]:
     headers = {}
-    for line in environ['MTEAM_HEADERS'].splitlines()[1:]:
+    for line in environ['TTG_HEADERS'].splitlines()[1:]:
         key, value = line.split(': ', 1)
         headers[key] = value
     return headers
 
 @fixture(name='crawler', scope='session')
-def _crawler(headers) -> MTeam:
-    return MTeam(headers=headers, logger=logger, qps=0.5)
+def _crawler(headers) -> TTG:
+    return TTG(headers=headers, logger=logger, qps=0.5)
 
 def test_get_user(crawler):
     user = crawler.get_user()
@@ -39,25 +38,28 @@ def test_get_user(crawler):
 
 def test_get_torrents(crawler):
     assert len(crawler.get_torrents()) == 100
-    assert len(crawler.get_torrents(pages=2)) == 200
+    torrents = crawler.get_torrents(pages=2)
+    assert len(torrents) == 200
 
-    assert len(crawler.get_torrents(mode='adult')) == 100
+    for torrent in torrents:
+        if torrent.hit_and_run > 0:
+            print(torrent)
 
 def test_get_torrent(crawler):
-    torrent = crawler.get_torrent('777698')
+    torrent = crawler.get_torrent('688981')
     print(torrent)
 
-    torrent = crawler.get_torrent('777466')
+    torrent = crawler.get_torrent('688424')
     print(torrent)
 
 def test_download_torrent(crawler):
     with NamedTemporaryFile('wb') as file:
-        crawler.download_torrent('777698', file.name)
+        crawler.download_torrent('688424', file.name)
         information = torrent_info(file.name)
         assert information.is_valid()
 
     with NamedTemporaryFile('wb') as file:
-        torrent = crawler.get_torrent('777698')
+        torrent = crawler.get_torrent('688424')
         torrent.save(file.name)
 
         information = torrent_info(file.name)
@@ -65,9 +67,5 @@ def test_download_torrent(crawler):
 
 def test_get_tasks(crawler):
     tasks = crawler.get_tasks()
-    print(len([item for item in tasks if item.status == Status.SEEDING]))
-    print(len([item for item in tasks if item.status == Status.LEECHING]))
-
-    tasks = crawler.get_tasks(page_size=10)
-    print(len([item for item in tasks if item.status == Status.SEEDING]))
-    print(len([item for item in tasks if item.status == Status.LEECHING]))
+    for task in tasks:
+        print(task)

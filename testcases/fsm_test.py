@@ -4,6 +4,7 @@ from time import time
 from tempfile import NamedTemporaryFile
 
 from pytest import fixture
+from pytest import mark
 from loguru import logger
 from libtorrent import torrent_info
 
@@ -21,6 +22,7 @@ def _headers() -> Dict[str, str]:
 def _crawler(headers, proxy) -> FSM:
     return FSM(headers=headers, logger=logger, qps=0.5, proxy=proxy)
 
+@mark.skip(reason='cookie is expired')
 def test_get_user(crawler):
     user = crawler.get_user()
 
@@ -36,14 +38,17 @@ def test_get_user(crawler):
 
     print(user)
 
+@mark.skip(reason='cookie is expired')
 def test_get_torrents(crawler):
     assert len(crawler.get_torrents()) == 30
     assert len(crawler.get_torrents(pages=2)) == 60
 
+@mark.skip(reason='cookie is expired')
 def test_get_torrent(crawler):
     torrent = crawler.get_torrent('128200')
     print(torrent)
 
+@mark.skip(reason='cookie is expired')
 def test_download_torrent(crawler):
     with NamedTemporaryFile('wb') as file:
         crawler.download_torrent('128200', file.name)
@@ -57,6 +62,7 @@ def test_download_torrent(crawler):
         information = torrent_info(file.name)
         assert information.is_valid()
 
+@mark.skip(reason='cookie is expired')
 def test_get_tasks(crawler):
     tasks = crawler.get_tasks()
     for task in tasks:

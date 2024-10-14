@@ -68,7 +68,7 @@ class SearchData(BaseModel):
 class SearchResponse(BaseModel):
     code: str
     message: str
-    search_data: SearchData = Field(alias='data')
+    search_data: Optional[SearchData] = Field(alias='data')
 
 class MemberCount(BaseModel):
     upload_bytes: int = Field(alias='uploaded')
@@ -120,14 +120,14 @@ class MTeam(Crawler):
             qps=qps
         )
 
-    def get_torrents(self, pages: int = 1) -> List[Torrent]:
+    def get_torrents(self, pages: int = 1, mode: str = 'normal') -> List[Torrent]:
         torrents = []
 
         for page in range(pages):
             response = self.session.post(
                 url=self.base_url + '/api/torrent/search',
                 json={
-                    'mode': 'normal',
+                    'mode': mode,
                     'categories': [],
                     'visible': 1,
                     'pageNumber': page + 1,
@@ -139,6 +139,10 @@ class MTeam(Crawler):
                 raise RequestException(response)
 
             search_response: SearchResponse = SearchResponse.parse_raw(response.text)
+            if not search_response.search_data:
+                self.logger.warning(search_response.message)
+                break
+
             for item in search_response.search_data.items:
                 try:
                     torrent = Torrent(
