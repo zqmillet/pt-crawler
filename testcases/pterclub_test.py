@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 
 from pytest import fixture
 from loguru import logger
-from libtorrent import torrent_info
+from torrent_parser import parse_torrent_file
 
 from crawlers import PTerClub
 
@@ -50,15 +50,14 @@ def test_get_torrent(crawler):
 def test_download_torrent(crawler):
     with NamedTemporaryFile('wb') as file:
         crawler.download_torrent('547749', file.name)
-        information = torrent_info(file.name)
-        assert information.is_valid()
+        title = parse_torrent_file(file.name)['info']['name']
+        assert title
 
     with NamedTemporaryFile('wb') as file:
         torrent = crawler.get_torrent('547749')
         torrent.save(file.name)
-
-        information = torrent_info(file.name)
-        assert information.is_valid()
+        title = parse_torrent_file(file.name)['info']['name']
+        assert title
 
 def test_get_tasks(crawler):
     tasks = crawler.get_tasks()

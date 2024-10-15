@@ -7,19 +7,19 @@ from pytest import fixture
 from loguru import logger
 from torrent_parser import parse_torrent_file
 
-from crawlers import FSM
+from crawlers import OpenCD
 
 @fixture(name='headers', scope='session')
 def _headers() -> Dict[str, str]:
     headers = {}
-    for line in environ['FSM_HEADERS'].splitlines():
+    for line in environ['OPENCD_HEADERS'].splitlines():
         key, value = line.split(': ', 1)
         headers[key] = value
     return headers
 
 @fixture(name='crawler', scope='session')
-def _crawler(headers, proxy) -> FSM:
-    return FSM(headers=headers, logger=logger, qps=0.5, proxy=proxy)
+def _crawler(headers, proxy) -> OpenCD:
+    return OpenCD(headers=headers, logger=logger, qps=0.5, proxy=proxy)
 
 def test_get_user(crawler):
     user = crawler.get_user()
@@ -37,22 +37,28 @@ def test_get_user(crawler):
     print(user)
 
 def test_get_torrents(crawler):
-    assert len(crawler.get_torrents()) == 30
-    assert len(crawler.get_torrents(pages=2)) == 60
+    torrents = crawler.get_torrents()
+    for torrent in torrents:
+        print(torrent)
+    assert len(torrents) == 50
 
 def test_get_torrent(crawler):
-    torrent = crawler.get_torrent('128200')
+    torrent = crawler.get_torrent('165888')
+    print(torrent)
+
+    torrent = crawler.get_torrent('165934')
     print(torrent)
 
 def test_download_torrent(crawler):
     with NamedTemporaryFile('wb') as file:
-        crawler.download_torrent('128200', file.name)
+        crawler.download_torrent('165934', file.name)
+
         title = parse_torrent_file(file.name)['info']['name']
         print(title)
         assert title
 
     with NamedTemporaryFile('wb') as file:
-        torrent = crawler.get_torrent('128200')
+        torrent = crawler.get_torrent('165934')
         torrent.save(file.name)
 
         title = parse_torrent_file(file.name)['info']['name']
@@ -61,5 +67,7 @@ def test_download_torrent(crawler):
 
 def test_get_tasks(crawler):
     tasks = crawler.get_tasks()
+    if not tasks:
+        raise Exception()
     for task in tasks:
         print(task)

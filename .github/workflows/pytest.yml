@@ -28,6 +28,7 @@ jobs:
         TTG_HEADERS: ${{ secrets.TTG_HEADERS }}
         PTERCLUB_HEADERS: ${{ secrets.PTERCLUB_HEADERS }}
         REDLEAVES_HEADERS: ${{ secrets.REDLEAVES_HEADERS }}
+        OPENCD_HEADERS: ${{ secrets.OPENCD_HEADERS }}
         PYTHONPATH: .
     - name: Update converage
       uses: codecov/codecov-action@v2

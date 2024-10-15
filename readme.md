@@ -8,7 +8,7 @@
 
 写这个项目, 一是自己有需求, 二是好久没写代码了, 巩固一下. 如果这个项目对你有帮助, 可以 star + fork 二连, 如果你发现一些问题或者有一些其他想法, 也欢迎提 issue.
 
-现在完成了岛/馒头/拉面的相关 API, 以后会加入其他的功能, 以及兼容更多的站点.
+现在完成了岛/馒头/拉面等站点的 API, 以后会加入其他的功能, 以及兼容更多的站点.
 
 该项目的初衷是为了刷流, 因此只开发了刷流相关的 API, 如果需要其他的 API, 也可以提 issue 给我.
 
@@ -22,6 +22,7 @@
 | 套套 | `crawlers.TTG`       |
 | 猫站 | `crawlers.PTerClub`  |
 | 红叶 | `crawlers.RedLeaves` |
+| 皇后 | `crawlers.OpenCD`    |
 
 ## 安装
 
@@ -35,9 +36,7 @@ pip3 install pt-crawler
 python3 -m pip install pt-crawler
 ```
 
-## 请求头获取
-
-### `CHDBits`
+### 
 
 ## 使用
 
