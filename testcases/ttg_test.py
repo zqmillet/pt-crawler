@@ -12,7 +12,7 @@ from crawlers import TTG
 @fixture(name='headers', scope='session')
 def _headers() -> Dict[str, str]:
     headers = {}
-    for line in environ['TTG_HEADERS'].splitlines()[1:]:
+    for line in environ['TTG_HEADERS'].splitlines():
         key, value = line.split(': ', 1)
         headers[key] = value
     return headers

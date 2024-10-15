@@ -9,6 +9,8 @@ from crawlers import VERSION
 with open('crawlers/requirements.txt', 'r', encoding='utf8') as file:
     install_requires = list(map(lambda x: x.strip(), file.readlines()))
 
+with open('readme.md', 'r', encoding='utf8') as file:
+    long_description = file.read()
 
 setup(
     name='pt-crawler',
@@ -19,4 +21,5 @@ setup(
     description='a group of crawlers for private tracker website',
     packages=find_packages(),
     install_requires=install_requires,
+    long_description=long_description,
 )

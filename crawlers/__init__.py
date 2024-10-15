@@ -5,6 +5,6 @@ from .ttg import TTG
 from .pterclub import PTerClub
 from .redleaves import RedLeaves
 
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 __all__ = ['VERSION']

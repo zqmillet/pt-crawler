@@ -12,7 +12,7 @@ from crawlers import FSM
 @fixture(name='headers', scope='session')
 def _headers() -> Dict[str, str]:
     headers = {}
-    for line in environ['FSM_HEADERS'].splitlines()[1:]:
+    for line in environ['FSM_HEADERS'].splitlines():
         key, value = line.split(': ', 1)
         headers[key] = value
     return headers

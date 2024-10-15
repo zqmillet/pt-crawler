@@ -35,6 +35,10 @@ pip3 install pt-crawler
 python3 -m pip install pt-crawler
 ```
 
+## 请求头获取
+
+### `CHDBits`
+
 ## 使用
 
 这里以岛为例, 来说明如何使用 pt-crawler. 其他的类 API 接口与 `CHDBits` 一致.
