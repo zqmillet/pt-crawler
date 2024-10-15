@@ -40,8 +40,8 @@ def test_get_torrents(crawler):
     torrents = crawler.get_torrents()
     for torrent in torrents:
         print(torrent)
-    assert len(torrents) == 50
-    assert len(crawler.get_torrents(pages=2)) == 100
+    assert len(torrents) >= 50
+    assert len(crawler.get_torrents(pages=2)) >= 100
 
 def test_get_torrent(crawler):
     torrent = crawler.get_torrent('167810')

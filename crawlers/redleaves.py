@@ -128,7 +128,6 @@ class RedLeaves(Crawler):
             _, __, *rows = html.xpath('/html/body/table[2]/tr[2]/td/table/tr/td/table/tr')
 
             for row in rows:
-
                 title_element = find_element(row, 'td[2]//a[1]')
                 size_element = find_element(row, 'td[5]')
                 seeders_element = find_element(row, 'td[6]')
