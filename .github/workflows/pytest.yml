@@ -17,10 +17,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest
         pip install pytest-cov
+        pip install pytest-rerunfailures
         pip install -r crawlers/requirements.txt
         pip install -r testcases/requirements.txt
     - name: Test with pytest
-      run: pytest --cov crawlers --cov-report=xml testcases
+      run: pytest --cov crawlers --cov-report=xml --reruns 10 --reruns-delay 30 testcases
       env:
         CHDBITS_HEADERS: ${{ secrets.CHDBITS_HEADERS }}
         MTEAM_HEADERS: ${{ secrets.MTEAM_HEADERS }}
