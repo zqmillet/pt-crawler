@@ -30,6 +30,7 @@ jobs:
         PTERCLUB_HEADERS: ${{ secrets.PTERCLUB_HEADERS }}
         REDLEAVES_HEADERS: ${{ secrets.REDLEAVES_HEADERS }}
         OPENCD_HEADERS: ${{ secrets.OPENCD_HEADERS }}
+        OURBITS_HEADERS: ${{ secrets.OURBITS_HEADERS }}
         PYTHONPATH: .
     - name: Update converage
       uses: codecov/codecov-action@v2
