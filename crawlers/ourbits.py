@@ -53,11 +53,11 @@ def get_promotion_from_detail(element: Optional[etree._Element]) -> Promotion: #
     clazz = element.get('class') if element is not None else 'normal'
     return promotion_map.get(clazz, Promotion(upload_ratio=1, download_ratio=1))
 
-class OpenCD(Crawler):
+class OurBits(Crawler):
     def __init__(
         self,
         headers: Dict[str, str],
-        base_url: str = 'https://open.cd',
+        base_url: str = 'https://ourbits.club',
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
@@ -76,10 +76,10 @@ class OpenCD(Crawler):
     def get_user(self) -> User:
         pattern = r'.*'.join(
             [
-                r'(?P<user_name>.+) , 歡迎回來',
-                rf'魔力值 : (?P<bonus>{self.number_pattern}) 使用',
-                rf'上傳量：(?P<upload_number>{self.number_pattern}) (?P<upload_unit>{self.unit_pattern}) ',
-                rf'下載量：(?P<download_number>{self.number_pattern}) (?P<download_unit>{self.unit_pattern}) '
+                r'欢迎回来, (?P<user_name>.+) \[退出\]',
+                rf'魔力值 \[使用\]: (?P<bonus>{self.number_pattern}) ',
+                rf'上传量： (?P<upload_number>{self.number_pattern}) (?P<upload_unit>{self.unit_pattern}) ',
+                rf'下载量： (?P<download_number>{self.number_pattern}) (?P<download_unit>{self.unit_pattern}) '
                 ''
             ]
         )
@@ -90,10 +90,10 @@ class OpenCD(Crawler):
 
         html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
 
-        email_element = find_element(html, "//td[preceding-sibling::td[1][text()='郵箱地址']]")
-        passkey_element = find_element(html, "//td[preceding-sibling::td[1][text()='密匙']]")
-        user_id_element = find_element(html, '//*[@id="info_block"]/tr/td/table/tr/td[2]/div[1]/span/a')
-        title_element = find_element(html, '//*[@id="info_block"]/tr/td/table/tr/td[2]')
+        email_element = find_element(html, "//td[preceding-sibling::td[1][text()='邮箱地址']]")
+        passkey_element = find_element(html, "//td[preceding-sibling::td[1][text()='密钥']]")
+        user_id_element = find_element(html, '//*[@id="info_block"]/tr/td/table/tr/td[1]/span/span[1]/a')
+        title_element = find_element(html, '//*[@id="info_block"]/tr/td/table/tr/td[1]/span')
 
         if email_element is None or user_id_element is None or title_element is None or passkey_element is None:
             raise CannotGetUserInformationException()
@@ -113,7 +113,7 @@ class OpenCD(Crawler):
             download_bytes=calculate_bytes(result.group('download_number'), result.group('download_unit')),
             email=email_element.text,
             bonus=float(result.group('bonus').replace(',', '')),
-            passkey=passkey_element.text
+            passkey=''.join(passkey_element.itertext())
         )
 
     def get_torrents(self, pages: int = 1) -> List[Torrent]:
@@ -129,13 +129,13 @@ class OpenCD(Crawler):
                 raise RequestException(response)
 
             html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
-            _, *rows = html.xpath('//*[@id="form_torrent"]/table/tr')
+            _, *rows = html.xpath('//*[@id="torrenttable"]/tr')
 
             for row in rows:
-                title_element = find_element(row, 'td[3]/table/tr/td[1]/a["Title"]')
-                size_element = find_element(row, 'td[7]')
-                seeders_element = find_element(row, 'td[8]')
-                leechers_element = find_element(row, 'td[9]')
+                title_element = find_element(row, 'td[2]/table/tr/td[1]/a')
+                size_element = find_element(row, 'td[5]')
+                seeders_element = find_element(row, 'td[6]')
+                leechers_element = find_element(row, 'td[7]')
                 promotion_element = find_element(row, './/img[starts-with(@class, "pro_")]')
 
                 if title_element is None or size_element is None or seeders_element is None or leechers_element is None:
@@ -143,7 +143,7 @@ class OpenCD(Crawler):
                     continue
 
                 torrent_id = get_id_from_href(title_element.get('href'))
-                size = convert_to_bytes(''.join(size_element.itertext()).replace('\xa0', ' '))
+                size = convert_to_bytes(' '.join(size_element.itertext()))
 
                 if not torrent_id or not size:
                     self.logger.warning(CannotGetTorrentInformationException())
@@ -169,7 +169,7 @@ class OpenCD(Crawler):
 
     def get_torrent(self, torrent_id: str) -> Torrent:
         response = self.session.get(
-            url=self.base_url + '/plugin_details.php',
+            url=self.base_url + '/details.php',
             params={'hit': '1', 'id': torrent_id}
         )
 
@@ -178,20 +178,22 @@ class OpenCD(Crawler):
 
         html = etree.HTML(response.text) # pylint: disable=c-extension-no-member
 
-        title_element = find_element(html, '//*[@id="outer"]/center/div[1]')
-        size_element = find_element(html, "//td[preceding-sibling::td[1][text()='大小：']]")
+        title_element = find_element(html, '//*[@id="top"]')
+        size_element = find_element(html, "//td[preceding-sibling::td[1][text()='基本信息']]")
         seeder_and_leecher_element = find_element(html, "//td[preceding-sibling::td[1][text()='同伴']]")
-        promotion_element = find_element(html, './/img[starts-with(@class, "pro_")]')
+        promotion_element = find_element(title_element, './/font[@class="free" or @class="twoup" or @class="twoupfree" or @class="halfdown" or @class="twouphalfdown" or @class="thirtypercent"]')
 
         if title_element is None or size_element is None or seeder_and_leecher_element is None:
             raise CannotGetTorrentInformationException()
 
-        size = convert_to_bytes(size_element.text)
+        result = match('大小：(?P<size>.+) 类型', ' '.join(''.join(size_element.itertext()).split()))
+        if not result:
+            raise CannotGetTorrentInformationException()
 
+        size = convert_to_bytes(result.group('size'))
         torrent_name = title_element.text.strip()
 
-        result = match(r'(?P<seeder_number>.+) 個做種者 \| (?P<leecher_number>.+) 個下載者', ''.join(item.strip() for item in list(seeder_and_leecher_element.itertext())))
-
+        result = match(r'(?P<seeder_number>.+)个做种者\|(?P<leecher_number>.+)个下载者', ''.join(item.strip() for item in list(seeder_and_leecher_element.itertext())))
         if not result or not size:
             raise CannotGetTorrentInformationException()
 
@@ -201,7 +203,7 @@ class OpenCD(Crawler):
             size=size,
             seeders=int(result.group('seeder_number')),
             leechers=int(result.group('leecher_number')),
-            promotion=get_promotion_from_list(promotion_element),
+            promotion=get_promotion_from_detail(promotion_element),
             crawler=self,
             hit_and_run=False
         )
