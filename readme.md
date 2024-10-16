@@ -24,6 +24,7 @@
 | 红叶   | `crawlers.RedLeaves` |
 | 皇后   | `crawlers.OpenCD`    |
 | 我堡   | `crawlers.OurBits`   |
+| 你堡   | `crawlers.UBits`     |
 | 幼儿园 | `crawlers.U2`        |
 
 ## 安装
