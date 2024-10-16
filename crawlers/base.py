@@ -107,7 +107,7 @@ class Crawler(ABC):
     def __init__(
         self,
         headers: Dict[str, str],
-        base_url: str,
+        base_url: str = '',
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
