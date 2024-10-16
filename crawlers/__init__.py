@@ -6,7 +6,8 @@ from .pterclub import PTerClub
 from .redleaves import RedLeaves
 from .opencd import OpenCD
 from .ourbits import OurBits
+from .u2 import U2
 
-VERSION = '1.0.3'
+VERSION = '1.0.4'
 
 __all__ = ['VERSION']

@@ -51,7 +51,12 @@ def calculate_bytes(number: str, unit: str) -> int:
         'mb': 1024 ** 2,
         'gb': 1024 ** 3,
         'tb': 1024 ** 4,
-        'pb': 1024 ** 5
+        'pb': 1024 ** 5,
+        'kib': 1024,
+        'mib': 1024 ** 2,
+        'gib': 1024 ** 3,
+        'tib': 1024 ** 4,
+        'pib': 1024 ** 5
     }
 
     return int(float(number) * units.get(unit.lower(), 1))
@@ -119,7 +124,7 @@ class Crawler(ABC):
         self.session.headers.update(self.headers)
 
         self.number_pattern = r'\d+([\,]\d+)*([\.]\d+)'
-        self.unit_pattern = r'KB|MB|GB|TB|PB'
+        self.unit_pattern = r'KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB'
 
     @abstractmethod
     def get_user(self) -> User:

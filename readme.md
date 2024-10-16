@@ -14,16 +14,17 @@
 
 目前 pt-crawler 支持的站点有:
 
-| 别称 | 类                   |
-|------|----------------------|
-| 岛   | `crawlers.CHDBits`   |
-| 馒头 | `crawlers.MTeam`     |
-| 拉面 | `crawlers.FSM`       |
-| 套套 | `crawlers.TTG`       |
-| 猫站 | `crawlers.PTerClub`  |
-| 红叶 | `crawlers.RedLeaves` |
-| 皇后 | `crawlers.OpenCD`    |
-| 我堡 | `crawlers.OurBits`   |
+| 别称   | 类                   |
+|--------|----------------------|
+| 岛     | `crawlers.CHDBits`   |
+| 馒头   | `crawlers.MTeam`     |
+| 拉面   | `crawlers.FSM`       |
+| 套套   | `crawlers.TTG`       |
+| 猫站   | `crawlers.PTerClub`  |
+| 红叶   | `crawlers.RedLeaves` |
+| 皇后   | `crawlers.OpenCD`    |
+| 我堡   | `crawlers.OurBits`   |
+| 幼儿园 | `crawlers.U2`        |
 
 ## 安装
 
