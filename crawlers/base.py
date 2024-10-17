@@ -7,7 +7,6 @@ from logging import Logger
 from logging import getLogger
 from abc import ABC
 from abc import abstractmethod
-from math import inf
 from enum import Enum
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
@@ -18,6 +17,13 @@ from pydantic import Field
 from lxml import etree
 
 from .session import Session
+
+def format_size(size: int) -> str:
+    units = ['KB', 'MB', 'GB', 'TB', 'PB']
+    for index, unit in enumerate(units, start=1):
+        if size / 1024 ** index < 1024:
+            return f'{size / 1024 ** index:.2f} {unit}'
+    return 'Error Size'
 
 def get_headers(header_file_path: str) -> Dict[str, str]:
     with open(header_file_path, 'r', encoding='utf8') as file:
@@ -103,21 +109,29 @@ class Torrent(BaseModel):
     def save(self, file_path: str) -> None:
         self.crawler.download_torrent(self.torrent_id, file_path)
 
+    def __repr__(self) -> str:
+        return f'<Torrent {self.crawler.__class__.__name__} {self.torrent_id} {self.torrent_name} up/down ' \
+            '{self.seeders}/{self.leechers} promotion {self.promotion.upload_ratio}/{self.promotion.download_ratio} {format_size(self.size)}>'
+
 class Crawler(ABC):
+    base_url = ''
+
     def __init__(
         self,
         headers: Dict[str, str],
         base_url: str = '',
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
-        qps: float = inf,
-        hr_policy: Optional[Dict[str, int]] = None
+        qps: float = 1,
+        timeout: Optional[float] = None
     ) -> None:
-        self.base_url = base_url
+        self.base_url = base_url or self.base_url
         self.headers = headers
+        self.proxy = proxy
         self.proxies = {'http': proxy, 'https': proxy} if proxy else {}
         self.logger = logger or getLogger('dummy')
-        self.hr_policy = hr_policy or {}
+        self.qps = qps
+        self.timeout = timeout
 
         self.session = Session(qps=qps)
         self.session.proxies.update(self.proxies)
@@ -125,6 +139,9 @@ class Crawler(ABC):
 
         self.number_pattern = r'\d+([\,]\d+)*([\.]\d+)'
         self.unit_pattern = r'KB|MB|GB|TB|PB|KiB|MiB|GiB|TiB|PiB'
+
+    def __repr__(self) -> str:
+        return f'<Crawler {self.__class__.__name__} {self.base_url} proxy: {self.proxy}, qps: {self.qps}>'
 
     @abstractmethod
     def get_user(self) -> User:

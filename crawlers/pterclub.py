@@ -1,10 +1,7 @@
 from re import match
-from math import inf
 from typing import List
-from typing import Dict
 from typing import Optional
 from http import HTTPStatus
-from logging import Logger
 
 from lxml import etree # pylint: disable=c-extension-no-member
 
@@ -55,22 +52,7 @@ def get_promotion_from_detail(element: Optional[etree._Element]) -> Promotion: #
     return promotion_map.get(clazz, Promotion(upload_ratio=1, download_ratio=1))
 
 class PTerClub(Crawler):
-    def __init__(
-        self,
-        headers: Dict[str, str],
-        base_url: str = 'https://pterclub.com',
-        proxy: Optional[str] = None,
-        logger: Optional[Logger] = None,
-        qps: float = inf,
-        hr_policy: Optional[Dict[str, int]] = None,
-    ) -> None:
-        super().__init__(
-            headers=headers,
-            base_url=base_url,
-            proxy=proxy,
-            logger=logger,
-            qps=qps
-        )
+    base_url: str = 'https://pterclub.com'
 
     def get_user(self) -> User:
         pattern = r'.*'.join(

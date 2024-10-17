@@ -1,9 +1,6 @@
 from typing import List
-from typing import Dict
 from typing import Optional
 from http import HTTPStatus
-from math import inf
-from logging import Logger
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -103,33 +100,16 @@ class DITokenResponse(BaseModel):
     download_url: str = Field(alias='data')
 
 class MTeam(Crawler):
-    def __init__(
-        self,
-        headers: Dict[str, str],
-        base_url: str = 'https://api.m-team.cc',
-        mode: str = 'normal',
-        proxy: Optional[str] = None,
-        logger: Optional[Logger] = None,
-        qps: float = inf,
-        hr_policy: Optional[Dict[str, int]] = None,
-    ) -> None:
-        super().__init__(
-            headers=headers,
-            base_url=base_url,
-            proxy=proxy,
-            logger=logger,
-            qps=qps
-        )
-        self.mode = mode
+    base_url: str = 'https://api.m-team.cc'
 
-    def get_torrents(self, pages: int = 1) -> List[Torrent]:
+    def get_torrents(self, pages: int = 1, mode: str = 'normal') -> List[Torrent]:
         torrents = []
 
         for page in range(pages):
             response = self.session.post(
                 url=self.base_url + '/api/torrent/search',
                 json={
-                    'mode': self.mode,
+                    'mode': mode,
                     'categories': [],
                     'visible': 1,
                     'pageNumber': page + 1,

@@ -1,8 +1,4 @@
-from math import inf
 from typing import List
-from typing import Optional
-from typing import Dict
-from logging import Logger
 from http import HTTPStatus
 
 from pydantic import BaseModel
@@ -80,22 +76,7 @@ class GetTorrentResponse(BaseModel):
     data: GetTorrentData
 
 class FSM(Crawler):
-    def __init__(
-        self,
-        headers: Dict[str, str],
-        base_url: str = 'https://api.fsm.name',
-        proxy: Optional[str] = None,
-        logger: Optional[Logger] = None,
-        qps: float = inf,
-        hr_policy: Optional[Dict[str, int]] = None,
-    ) -> None:
-        super().__init__(
-            headers=headers,
-            base_url=base_url,
-            proxy=proxy,
-            logger=logger,
-            qps=qps
-        )
+    base_url: str = 'https://api.fsm.name'
 
     def get_torrents(self, pages: int = 1) -> List[Torrent]:
         torrents = []

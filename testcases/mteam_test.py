@@ -4,6 +4,7 @@ from time import time
 from tempfile import NamedTemporaryFile
 
 from pytest import fixture
+from pytest import mark
 from loguru import logger
 from torrent_parser import parse_torrent_file
 
@@ -18,9 +19,9 @@ def _headers() -> Dict[str, str]:
         headers[key] = value
     return headers
 
-@fixture(name='crawler', scope='session', params = ['normal', 'adult'])
-def _crawler(headers, request) -> MTeam:
-    return MTeam(headers=headers, logger=logger, qps=0.5, mode=request.param)
+@fixture(name='crawler', scope='session')
+def _crawler(headers) -> MTeam:
+    return MTeam(headers=headers, logger=logger, qps=0.5)
 
 def test_get_user(crawler):
     user = crawler.get_user()
@@ -37,12 +38,11 @@ def test_get_user(crawler):
 
     print(user)
 
-def test_get_torrents(crawler):
-    torrents = crawler.get_torrents()
+@mark.parametrize('mode', ['normal', 'adult'])
+def test_get_torrents(crawler, mode):
+    torrents = crawler.get_torrents(mode=mode)
     print(torrents[0])
-    assert len(torrents) == 100
-    assert len(crawler.get_torrents()) == 100
-    assert len(crawler.get_torrents(pages=2)) == 200
+    assert len(crawler.get_torrents(pages=2, mode=mode)) == 200
 
 def test_get_torrent(crawler):
     torrent = crawler.get_torrent('777698')

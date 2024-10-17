@@ -1,4 +1,6 @@
 from .base import Crawler
+from .base import Torrent
+from .base import Promotion
 from .chdbits import CHDBits
 from .mteam import MTeam
 from .fsm import FSM
