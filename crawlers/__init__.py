@@ -10,6 +10,6 @@ from .ourbits import OurBits
 from .u2 import U2
 from .ubits import UBits
 
-VERSION = '1.0.8'
+VERSION = '1.0.9'
 
 __all__ = ['VERSION']

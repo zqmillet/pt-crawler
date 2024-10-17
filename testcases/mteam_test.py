@@ -18,9 +18,9 @@ def _headers() -> Dict[str, str]:
         headers[key] = value
     return headers
 
-@fixture(name='crawler', scope='session')
-def _crawler(headers) -> MTeam:
-    return MTeam(headers=headers, logger=logger, qps=0.5)
+@fixture(name='crawler', scope='session', params = ['normal', 'adult'])
+def _crawler(headers, request) -> MTeam:
+    return MTeam(headers=headers, logger=logger, qps=0.5, mode=request.param)
 
 def test_get_user(crawler):
     user = crawler.get_user()
@@ -38,10 +38,11 @@ def test_get_user(crawler):
     print(user)
 
 def test_get_torrents(crawler):
+    torrents = crawler.get_torrents()
+    print(torrents[0])
+    assert len(torrents) == 100
     assert len(crawler.get_torrents()) == 100
     assert len(crawler.get_torrents(pages=2)) == 200
-
-    assert len(crawler.get_torrents(mode='adult')) == 100
 
 def test_get_torrent(crawler):
     torrent = crawler.get_torrent('777698')

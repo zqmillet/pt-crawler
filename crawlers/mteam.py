@@ -107,6 +107,7 @@ class MTeam(Crawler):
         self,
         headers: Dict[str, str],
         base_url: str = 'https://api.m-team.cc',
+        mode: str = 'normal',
         proxy: Optional[str] = None,
         logger: Optional[Logger] = None,
         qps: float = inf,
@@ -119,15 +120,16 @@ class MTeam(Crawler):
             logger=logger,
             qps=qps
         )
+        self.mode = mode
 
-    def get_torrents(self, pages: int = 1, mode: str = 'normal') -> List[Torrent]:
+    def get_torrents(self, pages: int = 1) -> List[Torrent]:
         torrents = []
 
         for page in range(pages):
             response = self.session.post(
                 url=self.base_url + '/api/torrent/search',
                 json={
-                    'mode': mode,
+                    'mode': self.mode,
                     'categories': [],
                     'visible': 1,
                     'pageNumber': page + 1,
