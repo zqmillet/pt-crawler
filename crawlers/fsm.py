@@ -61,7 +61,7 @@ class ListTorrentsResponse(BaseModel):
 class UserData(BaseModel):
     upload_bytes: int = Field(alias='upload')
     download_bytes: int = Field(alias='download')
-    user_id: str = Field(alias='uid')
+    user_id: str = Field(alias='uid', coerce_numbers_to_str=True)
     user_name: str = Field(alias='username')
     bonus: float = Field(alias='point')
     passkey: str

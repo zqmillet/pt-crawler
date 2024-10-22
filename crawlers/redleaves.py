@@ -56,7 +56,7 @@ class RedLeaves(Crawler):
     def get_user(self) -> User:
         pattern = r'.*'.join(
             [
-                r'欢迎回来, (?P<user_name>.+)\ue901',
+                r'欢迎回来, (?P<user_name>.+) 退出',
                 rf'上传量: (?P<upload_number>{self.number_pattern}) (?P<upload_unit>{self.unit_pattern}) ',
                 rf'下载量: (?P<download_number>{self.number_pattern}) (?P<download_unit>{self.unit_pattern}) ',
                 rf'魔力值 : (?P<bonus>{self.number_pattern})'

@@ -111,7 +111,7 @@ class Torrent(BaseModel):
 
     def __repr__(self) -> str:
         return f'<Torrent {self.crawler.__class__.__name__} {self.torrent_id} {self.torrent_name} up/down ' \
-            '{self.seeders}/{self.leechers} promotion {self.promotion.upload_ratio}/{self.promotion.download_ratio} {format_size(self.size)}>'
+            f'{self.seeders}/{self.leechers} promotion {self.promotion.upload_ratio}/{self.promotion.download_ratio} {format_size(self.size)}>'
 
 class Crawler(ABC):
     base_url = ''
