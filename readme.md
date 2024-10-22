@@ -26,6 +26,7 @@
 | 我堡   | `crawlers.OurBits`   |
 | 你堡   | `crawlers.UBits`     |
 | 幼儿园 | `crawlers.U2`        |
+| 柠檬   | `crawlers.LemonHD`   |
 
 ## 安装
 
