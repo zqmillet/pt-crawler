@@ -7,11 +7,11 @@ from requests.adapters import HTTPAdapter as BaseHTTPAdapter
 
 
 class HTTPAdapter(BaseHTTPAdapter):
-    def __init__(self, timeout: int, *args, **kwargs):
+    def __init__(self, timeout: int, *args, **kwargs): # type: ignore
         self.timeout = timeout
         super().__init__(*args, **kwargs)
 
-    def send(self, *args, **kwargs):
+    def send(self, *args, **kwargs): # type: ignore
         kwargs['timeout'] = kwargs.get('timeout', self.timeout)
         return super().send(*args, **kwargs)
 
